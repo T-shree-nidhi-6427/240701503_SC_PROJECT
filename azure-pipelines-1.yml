@@ -1,0 +1,81 @@
+trigger:
+- main
+
+variables:
+  azureServiceConnectionId: 'f8a56bfe-502c-484a-929f-cda157746e43'
+  webAppName: 'ProductReviewAndRatingSystem'
+  vmImageName: 'ubuntu-latest'
+  environmentName: 'production'
+  pythonVersion: '3.11'
+
+stages:
+
+# ================= BUILD =================
+- stage: Build
+  displayName: Build stage
+  jobs:
+  - job: BuildJob
+    pool:
+      vmImage: $(vmImageName)
+
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '$(pythonVersion)'
+      displayName: 'Use Python $(pythonVersion)'
+
+    # 🔍 Debug: see folder structure (optional but helpful)
+    - script: |
+        echo "Listing root folder"
+        ls
+      displayName: "Check root files"
+
+    # ✅ Correct install step
+    - script: |
+        cd CS23432-ProductReviewAndRatingSystem-SoftwareConstruction-main/CS23432-ProductReviewAndRatingSystem-SoftwareConstruction-main
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+      displayName: "Install dependencies"
+
+    # ✅ Archive correct folder
+    - task: ArchiveFiles@2
+      displayName: 'Archive project files'
+      inputs:
+        rootFolderOrFile: '$(System.DefaultWorkingDirectory)/CS23432-ProductReviewAndRatingSystem-SoftwareConstruction-main/CS23432-ProductReviewAndRatingSystem-SoftwareConstruction-main'
+        includeRootFolder: false
+        archiveType: zip
+        archiveFile: $(Build.ArtifactStagingDirectory)/app.zip
+        replaceExistingArchive: true
+
+    - upload: $(Build.ArtifactStagingDirectory)/app.zip
+      artifact: drop
+
+# ================= DEPLOY =================
+- stage: Deploy
+  displayName: Deploy stage
+  dependsOn: Build
+  condition: succeeded()
+
+  jobs:
+  - deployment: DeployJob
+    pool:
+      vmImage: $(vmImageName)
+
+    environment: $(environmentName)
+
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '$(pythonVersion)'
+            displayName: 'Use Python'
+
+          - task: AzureWebApp@1
+            displayName: 'Deploy to Azure Web App'
+            inputs:
+              azureSubscription: $(azureServiceConnectionId)
+              appName: $(webAppName)
+              package: $(Pipeline.Workspace)/drop/app.zip

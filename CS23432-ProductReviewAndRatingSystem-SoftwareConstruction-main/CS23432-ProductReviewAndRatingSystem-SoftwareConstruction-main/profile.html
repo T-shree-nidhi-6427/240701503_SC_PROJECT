@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Review System</title>
+    <meta name="description" content="User profile.">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="body-bg">
+    <nav class="navbar glass-card">
+        <div class="nav-brand">ReviewApp</div>
+        <div class="nav-links">
+            <span id="user-greeting"></span>
+            <a href="products.html">Products</a>
+            <a href="profile.html" class="active">Profile</a>
+            <a href="settings.html">Settings</a>
+            <a href="admin.html" id="admin-link" style="display: none;">Admin Dashboard</a>
+            <button onclick="logout()" class="btn btn-secondary btn-sm">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header class="page-header">
+            <h1>My Profile</h1>
+        </header>
+
+        <div class="admin-grid" style="grid-template-columns: 1fr;">
+            <!-- My Products -->
+            <div class="admin-section glass-card mb-20">
+                <h2>My Products</h2>
+                <div class="products-grid" id="my-products-container">
+                    <div class="loading">Loading products...</div>
+                </div>
+            </div>
+
+            <!-- My Reviews -->
+            <div class="admin-section glass-card">
+                <h2>My Reviews</h2>
+                <div class="reviews-list" id="my-reviews-container">
+                    <div class="loading">Loading reviews...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal (Reused layout) -->
+    <div id="add-product-modal" class="modal">
+        <div class="modal-content glass-card">
+            <span class="close" onclick="closeModal('add-product-modal')">&times;</span>
+            <h2 id="product-modal-title">Edit Product</h2>
+            <form onsubmit="handleAddProduct(event)">
+                <input type="hidden" id="prod-id">
+                <div class="input-group">
+                    <label for="prod-name">Product Name</label>
+                    <input type="text" id="prod-name" required>
+                </div>
+                <div class="input-group">
+                    <label for="prod-desc">Description</label>
+                    <textarea id="prod-desc" required rows="3"></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="prod-cat">Category</label>
+                    <select id="prod-cat" required>
+                        <option value="electronics">Electronics</option>
+                        <option value="clothing">Clothing</option>
+                        <option value="books">Books</option>
+                        <option value="home">Home & Kitchen</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="prod-price">Price (₹)</label>
+                    <input type="number" id="prod-price" step="0.01" required>
+                </div>
+                <div class="input-group">
+                    <label for="prod-image">Image URL (Optional)</label>
+                    <input type="text" id="prod-image" placeholder="https://example.com/image.jpg">
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Save Product</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Edit Review Modal -->
+    <div id="add-review-modal" class="modal">
+        <div class="modal-content glass-card">
+            <span class="close" onclick="closeModal('add-review-modal')">&times;</span>
+            <h2 id="review-modal-title">Edit Review</h2>
+            <form id="review-form" onsubmit="submitReview(event)">
+                <input type="hidden" id="edit-review-id">
+                <input type="hidden" id="edit-review-prod-id">
+                <div class="input-group">
+                    <label>Rating</label>
+                    <div class="star-rating" id="star-rating-input">
+                        <span class="star" data-value="1">&#9733;</span>
+                        <span class="star" data-value="2">&#9733;</span>
+                        <span class="star" data-value="3">&#9733;</span>
+                        <span class="star" data-value="4">&#9733;</span>
+                        <span class="star" data-value="5">&#9733;</span>
+                    </div>
+                    <input type="hidden" id="review-rating" required>
+                </div>
+                <div class="input-group">
+                    <label for="review-comment">Comment</label>
+                    <textarea id="review-comment" rows="4" placeholder="What did you think about this product?"></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="review-image">Image URL (Optional)</label>
+                    <input type="text" id="review-image" placeholder="https://example.com/image.jpg">
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Update Review</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        checkAuth();
+        document.addEventListener('DOMContentLoaded', fetchProfile);
+        
+        // Setup star rating functionality
+        document.querySelectorAll('#star-rating-input .star').forEach(star => {
+            star.addEventListener('click', function() {
+                let value = this.getAttribute('data-value');
+                document.getElementById('review-rating').value = value;
+                document.querySelectorAll('#star-rating-input .star').forEach(s => {
+                    if (s.getAttribute('data-value') <= value) {
+                        s.classList.add('selected');
+                    } else {
+                        s.classList.remove('selected');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - Review System</title>
+    <meta name="description" content="View product details and reviews.">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .star-rating {
+            font-size: 24px;
+            color: #475569;
+            cursor: pointer;
+        }
+        .star-rating .star {
+            display: inline-block;
+            transition: color 0.2s;
+        }
+        .star-rating .star:hover,
+        .star-rating .star.selected {
+            color: #fbbf24;
+        }
+    </style>
+</head>
+<body class="body-bg">
+    <nav class="navbar glass-card">
+        <div class="nav-brand">ReviewApp</div>
+        <div class="nav-links">
+            <span id="user-greeting"></span>
+            <a href="products.html">Products</a>
+            <a href="profile.html">Profile</a>
+            <a href="settings.html">Settings</a>
+            <a href="admin.html" id="admin-link" style="display: none;">Admin Dashboard</a>
+            <button onclick="logout()" class="btn btn-secondary btn-sm">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <button onclick="window.history.back()" class="btn btn-secondary mb-20">&larr; Back to Products</button>
+
+        <div class="product-details-card glass-card" id="product-info-container">
+            <!-- Product details injected here -->
+            <div class="loading">Loading product details...</div>
+        </div>
+
+        <div class="reviews-section">
+            <div class="reviews-header">
+                <h2>Customer Reviews</h2>
+                <button class="btn btn-primary" onclick="openReviewModal()" id="add-review-btn">Write a Review</button>
+            </div>
+            
+            <div class="reviews-list" id="reviews-container">
+                <!-- Reviews injected here -->
+                <div class="loading">Loading reviews...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add / Edit Review Modal -->
+    <div id="add-review-modal" class="modal">
+        <div class="modal-content glass-card">
+            <span class="close" onclick="closeModal('add-review-modal')">&times;</span>
+            <h2 id="review-modal-title">Write a Review</h2>
+            <form id="review-form" onsubmit="submitReview(event)">
+                <input type="hidden" id="edit-review-id">
+                <input type="hidden" id="edit-review-prod-id">
+                <div class="input-group">
+                    <label>Rating</label>
+                    <div class="star-rating" id="star-rating-input">
+                        <span class="star" data-value="1">&#9733;</span>
+                        <span class="star" data-value="2">&#9733;</span>
+                        <span class="star" data-value="3">&#9733;</span>
+                        <span class="star" data-value="4">&#9733;</span>
+                        <span class="star" data-value="5">&#9733;</span>
+                    </div>
+                    <input type="hidden" id="review-rating" required>
+                </div>
+                <div class="input-group">
+                    <label for="review-comment">Comment</label>
+                    <textarea id="review-comment" rows="4" placeholder="What did you think about this product?"></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="review-image">Image URL (Optional)</label>
+                    <input type="text" id="review-image" placeholder="https://example.com/image.jpg">
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Submit Review</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        checkAuth();
+        
+        // Setup star rating functionality
+        document.querySelectorAll('#star-rating-input .star').forEach(star => {
+            star.addEventListener('click', function() {
+                let value = this.getAttribute('data-value');
+                document.getElementById('review-rating').value = value;
+                
+                // Update UI
+                document.querySelectorAll('#star-rating-input .star').forEach(s => {
+                    if (s.getAttribute('data-value') <= value) {
+                        s.classList.add('selected');
+                    } else {
+                        s.classList.remove('selected');
+                    }
+                });
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+            if (productId) {
+                fetchProductDetails(productId);
+                fetchProductReviews(productId);
+            } else {
+                document.getElementById('product-info-container').innerHTML = '<p class="error">Product not found.</p>';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Review System</title>
+    <meta name="description" content="Admin dashboard.">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="body-bg">
+    <nav class="navbar glass-card">
+        <div class="nav-brand">ReviewApp <span style="font-size: 0.6em; color: #ff5252;">(ADMIN)</span></div>
+        <div class="nav-links">
+            <span id="user-greeting"></span>
+            <a href="products.html">Products</a>
+            <a href="profile.html">Profile</a>
+            <a href="settings.html">Settings</a>
+            <a href="admin.html" class="active">Admin Dashboard</a>
+            <button onclick="logout()" class="btn btn-secondary btn-sm">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header class="page-header">
+            <h1>Admin Dashboard</h1>
+        </header>
+
+        <div class="admin-grid">
+            <!-- Users Section -->
+            <div class="admin-section glass-card">
+                <h2>Registered Users</h2>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Role</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body">
+                            <tr><td colspan="3" class="text-center">Loading users...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Quick Stats Section (Optional extra feature) -->
+            <div class="admin-section glass-card">
+                <h2>System Overview</h2>
+                <p>Welcome to the admin dashboard. As an admin, you have the ability to view all registered users here.</p>
+                <p>Additionally, you can manage (delete/edit) ANY product or review directly from the <strong>Products</strong> or <strong>Product Details</strong> pages.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        checkAuth();
+        
+        // Ensure user is admin
+        if (localStorage.getItem('role') !== 'admin') {
+            alert('Unauthorized. Admin access required.');
+            window.location.href = 'products.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchUsers);
+    </script>
+</body>
+</html>
